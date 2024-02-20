@@ -85,8 +85,7 @@ class Endpoint
             $this->content = json_decode(
                 $content,
                 true,
-                512,
-                JSON_THROW_ON_ERROR
+                512
             );
         } catch (JsonException $e) {
             throw new Exception(sprintf(
@@ -138,8 +137,10 @@ class Endpoint
 
     public function renderClass(): string
     {
-        if (isset($this->content['body']['serialize']) &&
-            $this->content['body']['serialize'] === 'bulk') {
+        if (
+            isset($this->content['body']['serialize']) &&
+            $this->content['body']['serialize'] === 'bulk'
+        ) {
             $class = file_get_contents(self::ENDPOINT_BULK_CLASS_TEMPLATE);
         } else {
             $class = file_get_contents(self::ENDPOINT_CLASS_TEMPLATE);
@@ -164,8 +165,10 @@ class Endpoint
 
         // Set the HTTP method
         $action = $this->getMethod();
-        if (!empty($this->content['body']) &&
-            ($action === ['GET', 'POST'] || $action === ['POST', 'GET'])) {
+        if (
+            !empty($this->content['body']) &&
+            ($action === ['GET', 'POST'] || $action === ['POST', 'GET'])
+        ) {
             $method = 'isset($this->body) ? \'POST\' : \'GET\'';
         } else {
             $method = sprintf("'%s'", reset($action));
@@ -175,8 +178,10 @@ class Endpoint
         $parts = '';
         // Set parts
         if (!empty($this->content['body'])) {
-            if (isset($this->content['body']['serialize']) &&
-                $this->content['body']['serialize'] === 'bulk') {
+            if (
+                isset($this->content['body']['serialize']) &&
+                $this->content['body']['serialize'] === 'bulk'
+            ) {
                 $parts .= $this->getSetBulkBody();
             } else {
                 $parts .= $this->getSetPart('body');
@@ -222,14 +227,16 @@ class Endpoint
         foreach (array_keys($this->content['params']) as $param) {
             $result .=  "'$param',\n" . $tab12;
         }
-        return "\n". $tab12 . rtrim(trim($result), ',') . "\n". $tab8;
+        return "\n" . $tab12 . rtrim(trim($result), ',') . "\n" . $tab8;
     }
 
     private function getDeprecatedMessage(string $part): string
     {
         foreach ($this->content['url']['paths'] as $path) {
-            if (isset($path['parts'][$part]) && isset($path['parts'][$part]['deprecated']) &&
-                $path['parts'][$part]['deprecated']) {
+            if (
+                isset($path['parts'][$part]) && isset($path['parts'][$part]['deprecated']) &&
+                $path['parts'][$part]['deprecated']
+            ) {
                 return $path['deprecated']['description'] ?? '';
             }
         }
@@ -290,9 +297,9 @@ class Endpoint
             if (!in_array($parts[0], $this->requiredParts)) {
                 $check = sprintf("isset(\$%s)", $parts[0]);
             }
-            $url = str_replace('{' . $parts[0] .'}', '$' . $parts[0], $path);
-            for ($i=1; $i<count($parts); $i++) {
-                $url = str_replace('{' . $parts[$i] .'}', '$' . $parts[$i], $url);
+            $url = str_replace('{' . $parts[0] . '}', '$' . $parts[0], $path);
+            for ($i = 1; $i < count($parts); $i++) {
+                $url = str_replace('{' . $parts[$i] . '}', '$' . $parts[$i], $url);
                 if (in_array($parts[$i], $this->requiredParts)) {
                     continue;
                 }
@@ -351,7 +358,7 @@ class Endpoint
         $urls = $this->removePathWithSameParts($paths);
         // Order the url based on descendant length
         usort($urls, function ($a, $b) {
-            return strlen($b)-strlen($a);
+            return strlen($b) - strlen($a);
         });
 
         return $urls;
@@ -494,7 +501,7 @@ class Endpoint
                 "     * \$params['%s']%s = %s(%s) %s%s\n",
                 $part,
                 str_repeat(' ', $space - strlen($part)),
-                $part ==='type' || (isset($values['deprecated']) && $values['deprecated']) ? 'DEPRECATED ' : '',
+                $part === 'type' || (isset($values['deprecated']) && $values['deprecated']) ? 'DEPRECATED ' : '',
                 $values['type'],
                 $values['description'] ?? '',
                 in_array($part, $this->requiredParts) ? ' (Required)' : ''

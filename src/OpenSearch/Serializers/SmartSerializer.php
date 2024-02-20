@@ -41,7 +41,7 @@ class SmartSerializer implements SerializerInterface
         } else {
             $data = json_encode($data, JSON_PRESERVE_ZERO_FRACTION + JSON_INVALID_UTF8_SUBSTITUTE);
             if ($data === false) {
-                throw new Exceptions\RuntimeException("Failed to JSON encode: ".json_last_error_msg());
+                throw new Exceptions\RuntimeException("Failed to JSON encode: " . json_last_error_msg());
             }
             if ($data === '[]') {
                 return '{}';
@@ -82,7 +82,7 @@ class SmartSerializer implements SerializerInterface
         }
 
         try {
-            return json_decode($data, true, 512, JSON_THROW_ON_ERROR);
+            return json_decode($data, true, 512);
         } catch (\JsonException $e) {
             throw new JsonErrorException($e->getCode(), $data, []);
         }
